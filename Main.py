@@ -1,5 +1,5 @@
 from Blockchain import Blockchain
-import BeatyPrint
+from Wallet import Wallet
 
 # Define users
 users = [
@@ -12,5 +12,4 @@ users = [
 
 # Create blockchain
 blockchain = Blockchain(users)
-# Send money between users
-blockchain.wallets[0].send_money(blockchain.wallets[1].public_key, 40)
+user_wallet = Wallet(blockchain)
