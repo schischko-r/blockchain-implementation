@@ -2,19 +2,20 @@ from dataclasses import dataclass
 import datetime
 from hashlib import md5
 from ellipticcurve.ecdsa import Ecdsa
+from Interface import InterfaceHandler
 
 
 @dataclass(frozen=True, order=True, kw_only=True)
 class Block:
 
-    def __init__(self, prev=None, nonce=0, sender_wallet=None, recipient_wallet=None, v=None, wallet=None) -> None:
+    def __init__(self, prev=None, nonce=0, sender_wallet=None, recipient_wallet=None, v=None) -> None:
         if prev is None:
             # If the previous block is not specified
             object.__setattr__(self, '_number', 0)
         else:
             # If the previous block is specified
             object.__setattr__(self, '_number', prev.get_number() + 1)
-
+        object.__setattr__(self, 'interface', InterfaceHandler())
         # Set block data
         object.__setattr__(self, '_ver', 1)
         object.__setattr__(self, '_time', datetime.datetime.now())
@@ -29,6 +30,33 @@ class Block:
 
         object.__setattr__(self, '_signature', Ecdsa.sign(
             self.get_hash(), sender_wallet.private_key) if sender_wallet is not None else None)
+        object.__setattr__(self, '_signature_verified', False)
+        object.__setattr__(self, '_brain_cells', 0)
+
+    def is_valid(self) -> bool:
+        # Check if the block is valid
+        if self._signature_verified:
+            return True
+        else:
+            return False
+
+    def sign(self):
+        object.__setattr__(self, '_signature_verified', True)
+
+    def unsign(self):
+        object.__setattr__(self, '_signature_verified', False)
+
+    def set_brain_cells(self, value):
+        object.__setattr__(self, '_brain_cells', value)
+
+    def get_brain_cells(self):
+        return self._brain_cells
+
+    def set_transacttion_cost(self, value):
+        object.__setattr__(self, '_transaction_cost', value)
+
+    def get_transaction_cost(self):
+        return self._transaction_cost
 
     def get_previouis_hash(self) -> str:
         # Get previous block hash
@@ -91,9 +119,10 @@ class Block:
         # Get time of the block
         return self._time
 
-    def get_block_info(self) -> str:
+    def get_block_info(self):
         # Print block data to console
-        return f'Block {self.get_number()}\nSPK: {self.get_sender_public_key()}\nRPK: {self.get_reciever_public_key()}\nValue: {self.get_value()}\nHash: {self.get_hash()}\nPrevious Hash: {self.get_previouis_hash()}\nNonce: {self.get_nonce()}\nTime: {self.get_time()}\nSingature: {self.get_signature()}\n'
+
+        self.interface.Block(block=self)
 
     def calc_hash(*args):
         # Calculate hash of the block

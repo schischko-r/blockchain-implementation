@@ -12,4 +12,5 @@ users = [
 
 # Create blockchain
 blockchain = Blockchain(users)
+
 user_wallet = Wallet(blockchain)

@@ -5,10 +5,13 @@ from ellipticcurve.privateKey import PrivateKey
 
 class Wallet:
 
+    _TRANSACTION_FEE = 0.01
+
     def __init__(self, blockchain, public_name=None):
         # Blockchain of the wallet
         self.blockchain = blockchain
         self.interface = InterfaceHandler()
+        self.blockchain.interface = self.interface
         if public_name is None:
             self.interface.new_user_welcoming_message(side_wallet=self)
         else:
@@ -30,13 +33,21 @@ class Wallet:
             InterfaceHandler.Error('Not enough neurocoins')
             return
 
+        if value < 0:
+            # If the value is negative
+            InterfaceHandler.Error('Value must be positive')
+            return
         # Add block with sending money to another user to the blockchain
         # find wallet with recipient public key
         self.blockchain.add_block(sender_wallet=self,
                                   recipient_wallet=self.blockchain.wallets[[wallet.public_key_compressed for wallet in self.blockchain.wallets].index(
                                       recipient_public_key)], value=value)
+        # Transaction fee
+        self.blockchain.add_block(
+            sender_wallet=self, value=self.blockchain.chain[-1].get_transaction_cost(), commission=True)
 
     # TODO: LOGIN TO THE WALLET
+
     def login(self, public_name):
         if public_name in [self.blockchain.wallets[i].public_name for i in range(len(self.blockchain.wallets))]:
             return True

@@ -22,6 +22,24 @@ class InterfaceHandler:
 
         print("=========================================\n")
 
+    def Block(self, block):
+        print("\n=========================================")
+        print(f"{self.OKGREEN} + BLOCK: {block.get_number()} + {self.ENDC}")
+        print(f"{self.BOLD}SPK: {self.ENDC}{block.get_sender_public_key()}")
+        print(f"{self.BOLD}RPK: {self.ENDC}{block.get_reciever_public_key()}")
+        print(f"{self.BOLD}Value: {self.ENDC}{block.get_value()}")
+        print(f"{self.BOLD}Hash: {self.ENDC}{block.get_hash()}")
+        print(f"{self.BOLD}Previous Hash: {self.ENDC}{block.get_previouis_hash()}")
+        print(f"{self.BOLD}Nonce: {self.ENDC}{block.get_nonce()}")
+        print(f"{self.BOLD}Time: {self.ENDC}{block.get_time()}")
+        if block.is_valid():
+            print(
+                f"{self.BOLD}Singature {self.OKGREEN}(verified){self.ENDC}{self.BOLD}: {self.ENDC}{block.get_signature()}")
+        else:
+            print(
+                f"{self.BOLD}Singature {self.FAIL}(corrupted){self.ENDC}{self.BOLD}: {self.ENDC}{block.get_signature()}")
+        print("=========================================\n")
+
     def Alert(self, *args):
         print("\n=========================================")
         for t in args:
@@ -119,7 +137,7 @@ class InterfaceHandler:
                 choice = int(input("\nEnter your choice: "))
                 if choice == 1:
                     self.Info("Blockchain:")
-                    print(self.wallet.blockchain)
+                    self.wallet.blockchain.print_blockchain_info()
                     self.main_menu()
                 elif choice == 2:
                     for wallet in self.wallet.blockchain.wallets:
