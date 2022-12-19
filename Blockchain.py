@@ -23,21 +23,21 @@ class Blockchain:
         self.interface = InterfaceHandler()
         # Giving money to all users
         for i in range(len(self.wallets)):
-            self.add_block(sender_wallet=Wallet(public_name="God", blockchain=self),
+            self.add_block(sender_wallet=Wallet(public_name="Admin", blockchain=self),
                            recipient_wallet=self.wallets[i], value=150)
 
     def get_last_block(self) -> Block:
         # Get last block in the blockchain
         return self.chain[-1]
 
-    def add_block(self, sender_wallet=None, recipient_wallet=None, value=100, commission=False) -> None:
+    def add_block(self, sender_wallet=None, recipient_wallet=None, value=100, ) -> None:
         # Add block to the blockchain
 
-        if recipient_wallet is None and not commission:
+        if recipient_wallet is None and sender_wallet.public_name != "Admin" and recipient_wallet.public_name != "Admin":
             # If the recipient is not specified
             InterfaceHandler.Error("You must specify the recipient")
             return None
-        if not commission:
+        if sender_wallet.public_name != "Admin" and recipient_wallet.public_name != "Admin":
             if sender_wallet.public_key == recipient_wallet.public_key:
                 # If the sender and the recipient are the same
                 InterfaceHandler.Error("You can't send money to yourself")
@@ -49,15 +49,26 @@ class Blockchain:
 
         if Ecdsa.verify(block.get_hash(),
                         block.get_signature_object(), sender_wallet.public_key):
-            block.sign()
-            block.mine(self._DIFFICULTY)
-            if not commission:
+
+            if sender_wallet.public_name != "Admin" and recipient_wallet.public_name != "Admin":
+                choice = int(
+                    input("\nDo you want to send message to recipient? (1 - yes, 2 - no): "))
+                if choice == 1:
+                    block.add_message()
                 block.set_brain_cells(
                     block.get_nonce() * self._BRAIN_CELLS_COST)
 
                 block.set_transacttion_cost(self._TRANSACTION_COST *
                                             block.get_value() + block.get_brain_cells())
+
+            block.mine(self._DIFFICULTY)
+            self.interface.Debug(f"Block {len(self.chain)+1} mined")
+            block.sign()
+            self.interface.Debug(f"Block {len(self.chain)+1} signed")
+
             self.chain.append(block)
+            self.interface.Debug(
+                f"Block {len(self.chain)} successfully added to the blockchain\n")
 
         else:
             pass

@@ -24,6 +24,9 @@ class Block:
         object.__setattr__(
             self, '_rpk', recipient_wallet.public_key_compressed if recipient_wallet is not None else None)
         object.__setattr__(self, '_value', v)
+        object.__setattr__(self, '_transaction_cost', 0)
+        object.__setattr__(self, '_brain_cells', 0)
+
         object.__setattr__(self, '_previous', prev)
         object.__setattr__(self, '_nonce', nonce)
         object.__setattr__(self, '_charline', '')
@@ -31,7 +34,15 @@ class Block:
         object.__setattr__(self, '_signature', Ecdsa.sign(
             self.get_hash(), sender_wallet.private_key) if sender_wallet is not None else None)
         object.__setattr__(self, '_signature_verified', False)
-        object.__setattr__(self, '_brain_cells', 0)
+
+    def add_message(self):
+        # Add message to the block
+        object.__setattr__(self, '_charline', input("Enter message: "))
+        self.interface.Debug("Message added")
+
+    def get_message(self):
+        # Get message from the block
+        return self._charline
 
     def is_valid(self) -> bool:
         # Check if the block is valid

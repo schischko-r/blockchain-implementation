@@ -26,8 +26,10 @@ class InterfaceHandler:
         print("\n=========================================")
         print(f"{self.OKGREEN} + BLOCK: {block.get_number()} + {self.ENDC}")
         print(f"{self.BOLD}SPK: {self.ENDC}{block.get_sender_public_key()}")
-        print(f"{self.BOLD}RPK: {self.ENDC}{block.get_reciever_public_key()}")
+        print(f"{self.BOLD}RPK: {self.ENDC}{block.get_reciever_public_key()}\n")
         print(f"{self.BOLD}Value: {self.ENDC}{block.get_value()}")
+        print(f"{self.BOLD}Transaction Cost: {self.ENDC}{block.get_transaction_cost()}")
+        print(f"{self.BOLD}Message: {self.ENDC}{block.get_message()}\n")
         print(f"{self.BOLD}Hash: {self.ENDC}{block.get_hash()}")
         print(f"{self.BOLD}Previous Hash: {self.ENDC}{block.get_previouis_hash()}")
         print(f"{self.BOLD}Nonce: {self.ENDC}{block.get_nonce()}")
@@ -51,6 +53,11 @@ class InterfaceHandler:
         for t in args:
             print(f"{self.OKGREEN} + INFO  + {self.ENDC}: {t}")
         print("=========================================\n")
+
+    def Debug(self, *args):
+        if self.DEBUG:
+            for t in args:
+                print(f"{self.OKCYAN} + DEBUG + {self.ENDC}: {t}")
 
     def new_user_welcoming_message(self, side_wallet):
 

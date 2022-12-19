@@ -42,11 +42,10 @@ class Wallet:
         self.blockchain.add_block(sender_wallet=self,
                                   recipient_wallet=self.blockchain.wallets[[wallet.public_key_compressed for wallet in self.blockchain.wallets].index(
                                       recipient_public_key)], value=value)
+
         # Transaction fee
         self.blockchain.add_block(
-            sender_wallet=self, value=self.blockchain.chain[-1].get_transaction_cost(), commission=True)
-
-    # TODO: LOGIN TO THE WALLET
+            sender_wallet=self, recipient_wallet=Wallet(public_name="Admin", blockchain=self), value=self.blockchain.chain[-1].get_transaction_cost())
 
     def login(self, public_name):
         if public_name in [self.blockchain.wallets[i].public_name for i in range(len(self.blockchain.wallets))]:
