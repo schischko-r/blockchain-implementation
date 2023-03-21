@@ -1,8 +1,8 @@
 import hashlib
 import random
 
-import modular
-import elliptic_curves as ec
+from ECDSA import modular
+from ECDSA import elliptic_curves as ec
 
 
 class DSAError(Exception):
@@ -32,7 +32,7 @@ class EllipticCurveDSA(object):
 
     def Sign(self, key, message):
         d, _ = key
-        h = _hash_message(message)
+        h = _hash_message(message.encode('utf-8'))
         r = 0
         s = 0
 
@@ -61,12 +61,14 @@ class EllipticCurveDSA(object):
 
         r, s = signature
         if r < 1 or r > self._n - 1 or s < 1 or s > self._n - 1:
-            raise DSAError('[!!] Signature (%lld, %lld) is out of bounds.' % (r, s))
+            raise DSAError(
+                '[!!] Signature (%lld, %lld) is out of bounds.' % (r, s))
 
-        h = _hash_message(message)
+        h = _hash_message(message.encode('utf-8'))
         w = modular.invmod(s, self._n)
         u1 = (h * w) % self._n
         u2 = (r * w) % self._n
-        P = self._curve.add(self._curve.scalarMul(self._G, u1), self._curve.scalarMul(Q, u2))
+        P = self._curve.add(self._curve.scalarMul(
+            self._G, u1), self._curve.scalarMul(Q, u2))
 
         return r == (P.x() % self._n)

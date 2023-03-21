@@ -16,14 +16,14 @@ class InterfaceHandler:
         self.UNDERLINE = '\033[4m'
 
     def Error(self, *args):
-        print("\n=========================================")
+        print("\n=============================================")
         for t in args:
             print(f"{self.FAIL} + ERROR + {self.ENDC}: {t}")
 
-        print("=========================================\n")
+        print("=============================================\n")
 
     def Block(self, block):
-        print("\n=========================================")
+        print("\n=============================================")
         print(f"{self.OKGREEN} + BLOCK: {block.get_number()} + {self.ENDC}")
         print(f"{self.BOLD}SPK: {self.ENDC}{block.get_sender_public_key()}")
         print(f"{self.BOLD}RPK: {self.ENDC}{block.get_reciever_public_key()}\n")
@@ -33,6 +33,8 @@ class InterfaceHandler:
         print(f"{self.BOLD}Hash: {self.ENDC}{block.get_hash()}")
         print(f"{self.BOLD}Previous Hash: {self.ENDC}{block.get_previouis_hash()}")
         print(f"{self.BOLD}Nonce: {self.ENDC}{block.get_nonce()}")
+        print(f"{self.BOLD}Brain Cells: {self.ENDC}{block.get_brain_cells()}")
+
         print(f"{self.BOLD}Time: {self.ENDC}{block.get_time()}")
         if block.is_valid():
             print(
@@ -40,19 +42,19 @@ class InterfaceHandler:
         else:
             print(
                 f"{self.BOLD}Singature {self.FAIL}(corrupted){self.ENDC}{self.BOLD}: {self.ENDC}{block.get_signature()}")
-        print("=========================================\n")
+        print("=============================================\n")
 
     def Alert(self, *args):
-        print("\n=========================================")
+        print("\n=============================================")
         for t in args:
             print(f"{self.WARNING} + ALERT + {self.ENDC} : {t}")
         print("=========================================\n")
 
     def Info(self, *args):
-        print("\n=========================================")
+        print("\n=============================================")
         for t in args:
             print(f"{self.OKGREEN} + INFO  + {self.ENDC}: {t}")
-        print("=========================================\n")
+        print("=============================================\n")
 
     def Debug(self, *args):
         if self.DEBUG:
@@ -64,11 +66,11 @@ class InterfaceHandler:
         self.wallet = side_wallet
 
         self.Info("Welcome to the Neurocoin Wallet")
-        print("\n=========================================")
+        print("\n=============================================")
         print("1. Create a new wallet")
         print("2. Login to an existing wallet")
         print("3. Exit")
-        print("=========================================\n")
+        print("=============================================\n")
 
         choice = int(input("Enter your choice: "))
         if choice == 3:
@@ -94,6 +96,10 @@ class InterfaceHandler:
                     self.wallet)
             else:
                 self.wallet.public_name = public_name
+                self.wallet._dsa = self.wallet.blockchain.wallets[[
+                    wallet.public_name for wallet in self.wallet.blockchain.wallets].index(public_name)]._dsa
+                self.wallet.key = self.wallet.blockchain.wallets[[
+                    wallet.public_name for wallet in self.wallet.blockchain.wallets].index(public_name)].key
                 self.wallet.public_key = self.wallet.blockchain.wallets[[
                     wallet.public_name for wallet in self.wallet.blockchain.wallets].index(public_name)].public_key
                 self.wallet.private_key = self.wallet.blockchain.wallets[[
@@ -114,7 +120,7 @@ class InterfaceHandler:
         if self.DEBUG:
             print("3. ==DEVELOPER MODE==")
         print("4. Exit")
-        print("\n=========================================\n")
+        print("\n=============================================\n")
 
         choice = int(input("\nEnter your choice: "))
 
@@ -128,9 +134,13 @@ class InterfaceHandler:
                 self.main_menu()
 
             value = int(input("\tEnter value: "))
-            self.wallet.send_money(recipient_public_key, value)
-            self.Info("Transaction successful")
-            self.main_menu()
+            if value > self.wallet.get_balance():
+                self.Error("You don't have enough money")
+                self.main_menu()
+            else:
+                self.wallet.send_money(recipient_public_key, value)
+                self.Info("Transaction successful")
+                self.main_menu()
 
         elif choice == 2:
             self.Info(
