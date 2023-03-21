@@ -1,14 +1,14 @@
 from dataclasses import dataclass
 import datetime
 from hashlib import md5
-from ellipticcurve.ecdsa import Ecdsa
+
 from Interface import InterfaceHandler
 
 
 @dataclass(frozen=True, order=True, kw_only=True)
 class Block:
 
-    def __init__(self, prev=None, nonce=0, sender_wallet=None, recipient_wallet=None, v=None) -> None:
+    def __init__(self, prev=None, nonce=0, sender_wallet=None, recipient_wallet=None, v=None, dsa=None, key=None) -> None:
         if prev is None:
             # If the previous block is not specified
             object.__setattr__(self, '_number', 0)
@@ -30,9 +30,15 @@ class Block:
         object.__setattr__(self, '_previous', prev)
         object.__setattr__(self, '_nonce', nonce)
         object.__setattr__(self, '_charline', '')
+        object.__setattr__(self, '_signature', None)
 
-        object.__setattr__(self, '_signature', Ecdsa.sign(
-            self.get_hash(), sender_wallet.private_key) if sender_wallet is not None else None)
+        if dsa:
+            object.__setattr__(self, '_signature', dsa.Sign(
+                sender_wallet.key, self.get_hash()) if sender_wallet is not None else None)
+        else:
+            if sender_wallet is not None:
+                sender_wallet.blockchain.interface.Debug(
+                    "No DSA! Signature is None")
         object.__setattr__(self, '_signature_verified', False)
 
     def add_message(self):
@@ -83,7 +89,7 @@ class Block:
     def get_signature(self) -> str:
         # Get signature of the block
         if self._signature:
-            return self._signature.toBase64()
+            return self._signature
         return None
 
     def get_balance(self, public_key):
@@ -137,7 +143,7 @@ class Block:
 
     def calc_hash(*args):
         # Calculate hash of the block
-        # TODO: Change mathod of calculating hash
+        # TODO: Change method of calculating hash
 
         h = md5()
         block_string = ""
